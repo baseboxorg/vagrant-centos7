@@ -3,10 +3,10 @@ MAINTAINER Benjamin Schwarze <benjamin.schwarze@mailboxd.de>
 
 RUN yum update -y
 
-RUN yum install -y openssh-server sudo tar wget
+RUN yum install -y initscripts openssh-server sudo tar wget
 
-# generate SSH keys on first run
-RUN /etc/init.d/sshd start
+# generate SSH keys
+RUN sshd-keygen
 
 RUN sed -i 's/.*requiretty$/Defaults !requiretty/' /etc/sudoers
 
