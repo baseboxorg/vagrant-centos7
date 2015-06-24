@@ -1,12 +1,23 @@
 FROM centos:centos7
 MAINTAINER Benjamin Schwarze <benjamin.schwarze@mailboxd.de>
 
-RUN yum update -y
+ENV container docker
 
-RUN yum install -y initscripts openssh-server sudo tar wget
+RUN yum update -y; yum clean all
+
+RUN yum install -y initscripts openssh-server sudo tar wget dbus; yum clean all
+RUN systemctl enable sshd.service
+
+RUN systemctl mask dev-mqueue.mount dev-hugepages.mount \
+    systemd-remount-fs.service sys-kernel-config.mount \
+    sys-kernel-debug.mount sys-fs-fuse-connections.mount
+RUN systemctl mask display-manager.service systemd-logind.service
+RUN systemctl disable graphical.target
+
+ADD dbus.service /etc/systemd/system/dbus.service
 
 # generate SSH keys
-RUN sshd-keygen
+RUN /usr/sbin/sshd-keygen
 
 RUN sed -i 's/.*requiretty$/Defaults !requiretty/' /etc/sudoers
 
@@ -24,5 +35,6 @@ RUN mkdir -pm 700 /home/vagrant/.ssh && \
 # expose SSH port
 EXPOSE 22
 
-# run SSH daemon
-CMD ["/usr/sbin/sshd", "-D"]
+VOLUME ["/sys/fs/cgroup"]
+
+CMD ["/usr/lib/systemd/systemd"]
