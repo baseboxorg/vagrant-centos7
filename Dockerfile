@@ -1,5 +1,4 @@
 FROM centos:centos7
-MAINTAINER Benjamin Schwarze <benjamin.schwarze@mailboxd.de>
 
 ENV container docker
 
